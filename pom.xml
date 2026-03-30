@@ -20,6 +20,9 @@
   <modules>
     <!-- 认证服务 -->
     <module>xiaohashu-auth</module>
+    <!-- 平台基础框架 -->
+    <module>xiaoha-framework</module>
+
   </modules>
 
   <properties>
@@ -78,6 +81,12 @@
         <version>${spring-cloud.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.quanxiaoha</groupId>
+        <artifactId>xiaoha-common</artifactId>
+        <version>${revision}</version>
       </dependency>
 
     </dependencies>
