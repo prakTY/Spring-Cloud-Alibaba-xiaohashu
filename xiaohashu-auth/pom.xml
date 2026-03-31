@@ -12,12 +12,22 @@
 
     <!-- 指定打包方式 -->
     <packaging>jar</packaging>
-
     <artifactId>xiaohashu-auth</artifactId>
     <name>${project.artifactId}</name>
     <description>小哈书：认证服务（负责处理用户登录、注册、账号注销等）</description>
 
     <dependencies>
+        <dependency>
+            <groupId>com.quanxiaoha</groupId>
+            <artifactId>xiaoha-common</artifactId>
+        </dependency>
+
+        <!-- 业务接口日志组件 -->
+        <dependency>
+            <groupId>com.quanxiaoha</groupId>
+            <artifactId>xiaoha-spring-boot-starter-biz-operationlog</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -27,11 +37,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.quanxiaoha</groupId>
-            <artifactId>xiaoha-common</artifactId>
         </dependency>
     </dependencies>
 
@@ -45,4 +50,3 @@
     </build>
 
 </project>
-

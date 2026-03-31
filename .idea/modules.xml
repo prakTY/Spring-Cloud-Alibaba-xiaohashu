@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/xiaoha-common.iml" filepath="$PROJECT_DIR$/xiaoha-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/xiaoha-spring-boot-starter-biz-operationlog.iml" filepath="$PROJECT_DIR$/xiaoha-spring-boot-starter-biz-operationlog.iml" />
     </modules>
   </component>
 </project>

@@ -16,11 +16,13 @@
 
     <artifactId>xiaoha-framework</artifactId>
     <name>${project.artifactId}</name>
-    <description>平台基础设施层：封装一些常用功能，供各个业务线拿来即用</description>
+    <description>平台基础框架：封装一些常用功能，供各个业务线拿来即用</description>
 
     <modules>
-        <!-- 通用工具组件 -->
+        <!-- 通用工具模块 -->
         <module>xiaoha-common</module>
+        <!-- 接口日志组件 -->
+        <module>xiaoha-spring-boot-starter-biz-operationlog</module>
     </modules>
 
 </project>
