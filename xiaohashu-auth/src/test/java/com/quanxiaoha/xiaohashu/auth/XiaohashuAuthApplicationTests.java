@@ -1,8 +1,6 @@
 package com.quanxiaoha.xiaohashu.auth;
 
 import com.quanxiaoha.framework.common.util.JsonUtils;
-import com.quanxiaoha.xiaohashu.auth.domain.dataobject.UserDO;
-import com.quanxiaoha.xiaohashu.auth.domain.mapper.UserDOMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -29,6 +27,41 @@ class XiaohashuAuthApplicationTests {
                 .build();
 
         userDOMapper.insert(userDO);
+    }
+
+    /**
+     * 查询数据
+     */
+    @Test
+    void testSelect() {
+        // 查询主键 ID 为 4 的记录
+        UserDO userDO = userDOMapper.selectByPrimaryKey(4L);
+        log.info("User: {}", JsonUtils.toJsonString(userDO));
+    }
+
+    /**
+     * 更新数据
+     */
+    @Test
+    void testUpdate() {
+        UserDO userDO = UserDO.builder()
+                .id(4L)
+                .username("犬小哈教程")
+                .updateTime(LocalDateTime.now())
+                .createTime(LocalDateTime.now())
+                .build();
+
+        // 根据主键 ID 更新记录
+        userDOMapper.updateByPrimaryKey(userDO);
+    }
+
+    /**
+     * 删除数据
+     */
+    @Test
+    void testDelete() {
+        // 删除主键 ID 为 4 的记录
+        userDOMapper.deleteByPrimaryKey(4L);
     }
 
 }
