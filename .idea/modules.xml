@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/xiaoha-common.iml" filepath="$PROJECT_DIR$/xiaoha-common.iml" />
       <module fileurl="file://$PROJECT_DIR$/xiaoha-spring-boot-starter-biz-operationlog.iml" filepath="$PROJECT_DIR$/xiaoha-spring-boot-starter-biz-operationlog.iml" />
+      <module fileurl="file://$PROJECT_DIR$/xiaoha-spring-boot-starter-jackson.iml" filepath="$PROJECT_DIR$/xiaoha-spring-boot-starter-jackson.iml" />
     </modules>
   </component>
 </project>
