@@ -81,7 +81,11 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
 
-        
+        <!-- 阿里云短信发送 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dypnsapi20170525</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
