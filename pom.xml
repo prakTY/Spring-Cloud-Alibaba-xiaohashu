@@ -22,6 +22,8 @@
     <module>xiaohashu-auth</module>
     <!-- 平台基础框架 -->
     <module>xiaoha-framework</module>
+    <!-- 网关服务 -->
+    <module>xiaohashu-gateway</module>
 
   </modules>
 
