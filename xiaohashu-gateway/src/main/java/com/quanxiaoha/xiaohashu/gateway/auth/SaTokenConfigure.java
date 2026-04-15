@@ -12,6 +12,8 @@ import cn.dev33.satoken.util.SaResult;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static cn.dev33.satoken.SaManager.log;
+
 /**
  * @author: 犬小哈
  * @date: 2024/6/13 14:48
@@ -28,6 +30,7 @@ public class SaTokenConfigure {
                 .addInclude("/**")    /* 拦截全部path */
                 // 鉴权方法：每次访问进入
                 .setAuth(obj -> {
+                    log.info("==================> SaReactorFilter, Path: {}", SaHolder.getRequest().getRequestPath());
                     // 登录校验
                     SaRouter.match("/**") // 拦截所有路由
                             .notMatch("/auth/user/login") // 排除登录接口
