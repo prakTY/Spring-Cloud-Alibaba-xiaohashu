@@ -24,6 +24,7 @@
     <module>xiaoha-framework</module>
     <!-- 网关服务 -->
     <module>xiaohashu-gateway</module>
+    <module>xiaohashu-oss</module>
 
   </modules>
 

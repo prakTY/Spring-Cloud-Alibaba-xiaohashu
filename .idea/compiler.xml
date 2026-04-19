@@ -16,10 +16,12 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
         <module name="xiaohashu-auth" />
+        <module name="xiaohashu-oss-api" />
+        <module name="xiaohashu-oss-biz" />
+        <module name="xiaoha-spring-boot-starter-jackson" />
         <module name="xiaohashu-gateway" />
         <module name="xiaoha-common" />
         <module name="xiaoha-spring-boot-starter-biz-operationlog" />
-        <module name="xiaoha-spring-boot-starter-jackson" />
       </profile>
     </annotationProcessing>
   </component>
