@@ -202,6 +202,12 @@
         <artifactId>sa-token-reactor-spring-boot3-starter</artifactId>
         <version>${sa-token.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>transmittable-thread-local</artifactId>
+        <version>${transmittable-thread-local.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

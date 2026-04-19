@@ -1,5 +1,6 @@
 package com.quanxiaoha.xiaohashu.auth.filter;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.quanxiaoha.framework.common.constant.GlobalConstants;
 
 import java.util.HashMap;
