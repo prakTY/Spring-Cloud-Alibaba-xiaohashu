@@ -17,6 +17,7 @@
         </processorPath>
         <module name="xiaohashu-auth" />
         <module name="xiaohashu-oss-api" />
+        <module name="xiaoha-spring-boot-starter-biz-context" />
         <module name="xiaohashu-oss-biz" />
         <module name="xiaoha-spring-boot-starter-jackson" />
         <module name="xiaohashu-gateway" />
@@ -24,5 +25,8 @@
         <module name="xiaoha-spring-boot-starter-biz-operationlog" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="xiaohashu-spring-boot-starter-biz-context" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

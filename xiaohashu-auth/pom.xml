@@ -126,6 +126,11 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
+        <!-- 业务上下文组件 -->
+        <dependency>
+            <groupId>com.quanxiaoha</groupId>
+            <artifactId>xiaoha-spring-boot-starter-biz-context</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

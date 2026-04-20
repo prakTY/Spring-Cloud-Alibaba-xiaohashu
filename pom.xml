@@ -209,6 +209,13 @@
         <artifactId>transmittable-thread-local</artifactId>
         <version>${transmittable-thread-local.version}</version>
       </dependency>
+
+      <!-- 业务上下文组件 -->
+      <dependency>
+        <groupId>com.quanxiaoha</groupId>
+        <artifactId>xiaoha-spring-boot-starter-biz-context</artifactId>
+        <version>${revision}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
