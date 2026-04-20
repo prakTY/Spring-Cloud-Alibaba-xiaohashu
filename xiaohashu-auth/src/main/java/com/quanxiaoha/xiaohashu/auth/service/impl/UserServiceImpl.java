@@ -2,8 +2,10 @@ package com.quanxiaoha.xiaohashu.auth.service.impl;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.quanxiaoha.framework.biz.context.holder.LoginUserContextHolder;
 import com.quanxiaoha.framework.common.enums.DeletedEnum;
 import com.quanxiaoha.framework.common.enums.StatusEnum;
 import com.quanxiaoha.framework.common.exception.BizException;
@@ -20,7 +22,6 @@ import com.quanxiaoha.xiaohashu.auth.domain.mapper.UserDOMapper;
 import com.quanxiaoha.xiaohashu.auth.domain.mapper.UserRoleDOMapper;
 import com.quanxiaoha.xiaohashu.auth.enums.LoginTypeEnum;
 import com.quanxiaoha.xiaohashu.auth.enums.ResponseCodeEnum;
-import com.quanxiaoha.xiaohashu.auth.filter.LoginUserContextHolder;
 import com.quanxiaoha.xiaohashu.auth.model.vo.user.UpdatePasswordReqVO;
 import com.quanxiaoha.xiaohashu.auth.model.vo.user.UserLoginReqVO;
 import com.quanxiaoha.xiaohashu.auth.service.UserService;
@@ -28,21 +29,16 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-/**
- * @author: 犬小哈
- * @date: 2024/4/7 15:41
- * @version: v1.0.0
- * @description: TODO
- **/
+import java.util.*;
+
+
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
@@ -50,13 +46,15 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserDOMapper userDOMapper;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RoleDOMapper roleDOMapper;
     @Resource
     private UserRoleDOMapper userRoleDOMapper;
     @Resource
-    private TransactionTemplate transactionTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private RoleDOMapper roleDOMapper;
+    private TransactionTemplate transactionTemplate;
+    @Resource(name = "taskExecutor")
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     @Resource
     private PasswordEncoder passwordEncoder;
 
@@ -73,6 +71,11 @@ public class UserServiceImpl implements UserService {
 
         LoginTypeEnum loginTypeEnum = LoginTypeEnum.valueOf(type);
 
+        // 未知的登录类型
+        if (Objects.isNull(loginTypeEnum)) {
+            throw new BizException(ResponseCodeEnum.LOGIN_TYPE_ERROR);
+        }
+
         Long userId = null;
 
         // 判断登录类型
@@ -82,7 +85,6 @@ public class UserServiceImpl implements UserService {
 
                 // 校验入参验证码是否为空
                 Preconditions.checkArgument(StringUtils.isNotBlank(verificationCode), "验证码不能为空");
-
 
                 // 构建验证码 Redis Key
                 String key = RedisKeyConstants.buildVerificationCodeKey(phone);
@@ -103,7 +105,6 @@ public class UserServiceImpl implements UserService {
                 if (Objects.isNull(userDO)) {
                     // 若此用户还没有注册，系统自动注册该用户
                     userId = registerUser(phone);
-
                 } else {
                     // 已注册，则获取其用户 ID
                     userId = userDO.getId();
@@ -135,6 +136,7 @@ public class UserServiceImpl implements UserService {
             default:
                 break;
         }
+
         // SaToken 登录用户, 入参为用户 ID
         StpUtil.login(userId);
 
@@ -143,60 +145,21 @@ public class UserServiceImpl implements UserService {
 
         // 返回 Token 令牌
         return Response.success(tokenInfo.tokenValue);
-
-
     }
 
-    private Long registerUser(String phone) {
-        return transactionTemplate.execute(status -> {
-            try {
-                // 获取全局自增的小哈书 ID
-                Long xiaohashuId = redisTemplate.opsForValue().increment(RedisKeyConstants.XIAOHASHU_ID_GENERATOR_KEY);
+    /**
+     * 退出登录
+     *
+     * @return
+     */
+    @Override
+    public Response<?> logout() {
+        Long userId = LoginUserContextHolder.getUserId();
 
-                UserDO userDO = UserDO.builder()
-                        .phone(phone)
-                        .xiaohashuId(String.valueOf(xiaohashuId)) // 自动生成小红书号 ID
-                        .nickname("小红薯" + xiaohashuId) // 自动生成昵称, 如：小红薯10000
-                        .status(StatusEnum.ENABLE.getValue()) // 状态为启用
-                        .createTime(LocalDateTime.now())
-                        .updateTime(LocalDateTime.now())
-                        .isDeleted(DeletedEnum.NO.getValue()) // 逻辑删除
-                        .build();
+        // 退出登录 (指定用户 ID)
+        StpUtil.logout(userId);
 
-                // 添加入库
-                userDOMapper.insert(userDO);
-
-
-
-                // 获取刚刚添加入库的用户 ID
-                Long userId = userDO.getId();
-
-                // 给该用户分配一个默认角色
-                UserRoleDO userRoleDO = UserRoleDO.builder()
-                        .userId(userId)
-                        .roleId(RoleConstants.COMMON_USER_ROLE_ID)
-                        .createTime(LocalDateTime.now())
-                        .updateTime(LocalDateTime.now())
-                        .isDeleted(DeletedEnum.NO.getValue())
-                        .build();
-                userRoleDOMapper.insert(userRoleDO);
-
-                RoleDO roleDO = roleDOMapper.selectByPrimaryKey(RoleConstants.COMMON_USER_ROLE_ID);
-
-                // 将该用户的角色 ID 存入 Redis 中，指定初始容量为 1，这样可以减少在扩容时的性能开销
-                List<String> roles = new ArrayList<>(1);
-                roles.add(roleDO.getRoleKey());
-
-                String userRolesKey = RedisKeyConstants.buildUserRoleKey(userId);
-                redisTemplate.opsForValue().set(userRolesKey, JsonUtils.toJsonString(roles));
-
-                return userId;
-            } catch (Exception e) {
-                status.setRollbackOnly(); // 标记事务为回滚
-                log.error("==> 系统注册用户异常: ", e);
-                return null;
-            }
-        });
+        return Response.success();
     }
 
     /**
@@ -227,27 +190,58 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 退出登录
-     *
-     * @param userId
+     * 系统自动注册用户
+     * @param phone
      * @return
      */
-    /**
-     * 退出登录
-     *
-     * @return
-     */
-    @Override
-    public Response<?> logout() {
-        Long userId = LoginUserContextHolder.getUserId();
+    private Long registerUser(String phone) {
+        return transactionTemplate.execute(status -> {
+            try {
+                // 获取全局自增的小哈书 ID
+                Long xiaohashuId = redisTemplate.opsForValue().increment(RedisKeyConstants.XIAOHASHU_ID_GENERATOR_KEY);
 
-        log.info("==> 用户退出登录, userId: {}", userId);
+                UserDO userDO = UserDO.builder()
+                        .phone(phone)
+                        .xiaohashuId(String.valueOf(xiaohashuId)) // 自动生成小红书号 ID
+                        .nickname("小红薯" + xiaohashuId) // 自动生成昵称, 如：小红薯10000
+                        .status(StatusEnum.ENABLE.getValue()) // 状态为启用
+                        .createTime(LocalDateTime.now())
+                        .updateTime(LocalDateTime.now())
+                        .isDeleted(DeletedEnum.NO.getValue()) // 逻辑删除
+                        .build();
 
-        // 退出登录 (指定用户 ID)
-        StpUtil.logout(userId);
+                // 添加入库
+                userDOMapper.insert(userDO);
 
-        return Response.success();
+                // 获取刚刚添加入库的用户 ID
+                Long userId = userDO.getId();
+
+                // 给该用户分配一个默认角色
+                UserRoleDO userRoleDO = UserRoleDO.builder()
+                        .userId(userId)
+                        .roleId(RoleConstants.COMMON_USER_ROLE_ID)
+                        .createTime(LocalDateTime.now())
+                        .updateTime(LocalDateTime.now())
+                        .isDeleted(DeletedEnum.NO.getValue())
+                        .build();
+                userRoleDOMapper.insert(userRoleDO);
+
+                RoleDO roleDO = roleDOMapper.selectByPrimaryKey(RoleConstants.COMMON_USER_ROLE_ID);
+
+                // 将该用户的角色 ID 存入 Redis 中
+                List<String> roles = new ArrayList<>(1);
+                roles.add(roleDO.getRoleKey());
+
+                String userRolesKey = RedisKeyConstants.buildUserRoleKey(userId);
+                redisTemplate.opsForValue().set(userRolesKey, JsonUtils.toJsonString(roles));
+
+                return userId;
+            } catch (Exception e) {
+                status.setRollbackOnly(); // 标记事务为回滚
+                log.error("==> 系统注册用户异常: ", e);
+                return null;
+            }
+        });
     }
-
 
 }
