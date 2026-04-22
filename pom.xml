@@ -24,7 +24,12 @@
     <module>xiaoha-framework</module>
     <!-- 网关服务 -->
     <module>xiaohashu-gateway</module>
+    <!-- 对象存储服务 -->
     <module>xiaohashu-oss</module>
+    <!-- 用户服务 -->
+    <module>xiaohashu-user</module>
+    <module>xiaohashu-user/xiaohashu-user-api</module>
+    <module>xiaohashu-user/xiaohashu-user-biz</module>
 
   </modules>
 
