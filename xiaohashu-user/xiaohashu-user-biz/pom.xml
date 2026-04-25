@@ -78,6 +78,12 @@
             <groupId>com.quanxiaoha</groupId>
             <artifactId>xiaoha-spring-boot-starter-jackson</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.quanxiaoha</groupId>
+            <artifactId>xiaohashu-oss-api</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

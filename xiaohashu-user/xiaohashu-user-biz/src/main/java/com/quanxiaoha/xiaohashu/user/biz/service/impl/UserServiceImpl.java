@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.quanxiaoha.framework.biz.context.holder.LoginUserContextHolder;
 import com.quanxiaoha.framework.common.response.Response;
 import com.quanxiaoha.framework.common.util.ParamUtils;
+import com.quanxiaoha.xiaohashu.oss.api.FileFeignApi;
 import com.quanxiaoha.xiaohashu.user.biz.domain.dataobject.UserDO;
 import com.quanxiaoha.xiaohashu.user.biz.domain.mapper.UserDOMapper;
 import com.quanxiaoha.xiaohashu.user.biz.enums.ResponseCodeEnum;
@@ -32,6 +33,8 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private UserDOMapper userDOMapper;
+    @Resource
+    private FileFeignApi fileFeignApi;
 
     /**
      * 更新用户信息
@@ -52,6 +55,7 @@ public class UserServiceImpl implements UserService {
 
         if (Objects.nonNull(avatarFile)) {
             // todo: 调用对象存储服务上传文件
+            fileFeignApi.test();
         }
 
         // 昵称
